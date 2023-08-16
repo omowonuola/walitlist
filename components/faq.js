@@ -10,46 +10,18 @@ const PopupWidget = () => {
     handleSubmit,
     reset,
     control,
-    formState: { errors, isSubmitSuccessful, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm({
     mode: "onTouched",
   });
   const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
+  const [isError, setError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [Message, setMessage] = useState("");
 
-  const userName = useWatch({ control, name: "name", defaultValue: "Someone" });
 
-  // const onSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     let form = {
-  //       name,
-  //       email,
-  //     }
-  //         console.log(response, 'response')
-  //         let json = await response;
-  //         console.log(json.success, 'loadjson')
-  //         if (json.success) {
-  //           setIsSuccess(true);
-  //           setMessage(json.message);
-  //           e.target.reset();
-  //           reset();
-  //         } else {
-  //           setIsSuccess(false);
-  //           setMessage(json.message);
-  //         }
-  //       } catch (error) {
-  //       setIsSuccess(false);
-  //       setMessage("Client Error. Please check the console.log for more info");
-  //       console.log(error);
-  //     };
-  // };
-
-  const onSubmit = async (e) => {
-    // e.preventDefault();
-
+  const onSubmit = async (data) => {
     try {
       let form = {
         name,
@@ -64,41 +36,29 @@ const PopupWidget = () => {
           },
           body: JSON.stringify(form)
       });
-      console.log(rawResponse, 'response here')
       const content = await rawResponse.json();
-      console.log(content.data, 'content')
       if (content.data !== undefined) {
-        console.log('poof')
-        setIsSuccess(true);
+        
         setMessage('Message sent successfully');
-        e.target.reset();
-        reset();
+        setIsSuccess(true);
+        setName('')
+        setEmail('')
       } else {
         setIsSuccess(false);
         setMessage('Oops, Something went wrong!');
       }
     } catch (error) {
-        setIsSuccess(false);
-        setMessage("Client Error. Please check the console.log for more info");
+        setError(true);
+        setMessage("Oops, Something went wrong!");
         console.log(error);
     }
 
-
-
-    // print to screen
-    // alert(content.data.tableRange)
-
-    // Reset the form fields
-    // setMessage('')
-    // setPhone('')
-    // setName('')
-    // setEmail('')
 }
 
   return (
     <div>
       <div className="flex-grow h-full p-6 overflow-hidden left-0 h-full w-full sm:w-[350px] min-h-[200px] sm:h-[300px] border border-gray-300 dark:border-gray-800 bg-white shadow-2xl rounded-md sm:max-h-[calc(100vh-120px)] bg-gray-50 mx-auto">
-        {!isSubmitSuccessful && (
+        { !isSuccess && !isError &&(
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
 
             <div className="mb-4">
@@ -201,7 +161,7 @@ const PopupWidget = () => {
           </form>
         )}
 
-        {isSubmitSuccessful || isSuccess && (
+        { isSuccess && (
           <>
             <div className="flex flex-col items-center justify-center h-full text-center text-white rounded-md">
               <svg
@@ -223,14 +183,13 @@ const PopupWidget = () => {
               <p className="text-gray-700 md:px-3">{Message}</p>
               <button
                 className="mt-6 text-blue-900 focus:outline-none"
-                onClick={() => reset()}>
+                onClick={() => {setError(false), setIsSuccess(false)}}>
                 Go back
               </button>
             </div>
           </>
         )}
-
-        {isSubmitSuccessful && !isSuccess && (
+        { isError &&(
           <div className="flex flex-col items-center justify-center h-full text-center text-white rounded-md">
             <svg
               width="60"
