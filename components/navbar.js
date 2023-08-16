@@ -76,7 +76,7 @@ const Navbar = () => {
               Get Started
           </Link>
 
-          <ThemeChanger />
+          {/* <ThemeChanger /> */}
         </div>
       </nav>
     </div>
